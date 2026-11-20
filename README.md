@@ -35,7 +35,7 @@ The app opens in your browser. To stop it, press `Ctrl+C` in Terminal.
 1. **Upload** an Excel (`.xlsx`) or `.csv` file.
 2. **Check the selections:** worksheet, header row (the row with column names), and ISBN column. The app usually picks these correctly. It then tells you how many book rows it found.
 3. Click **Search NLI** and keep the page open. It takes about 1 second per ISBN.
-4. Review the summary and click **Download Excel file**.
+4. Review the summary (counts and percentages of Yes, No, and Manual Review), then click **Download Excel file**.
 
 If the search is interrupted, click **Search NLI** again. Books already checked are not searched again.
 

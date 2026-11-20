@@ -35,9 +35,9 @@ def format_duration(seconds):
 
 st.set_page_config(page_title="NLI ISBN Search", layout="centered")
 st.title("National Library of Israel ISBN Search")
-st.write("Upload a book list, choose its ISBN column, and download a copy showing which "
+st.write("Upload a book list, select its ISBN column, and download a copy showing which "
          "books are held by the National Library of Israel.")
-st.caption("Green: Yes, NLI has it · Red: No match found · Yellow: Manual review needed")
+st.caption("Green: yes, NLI has it · Red: no match found · Yellow: manual review needed")
 
 try:
     yaz_path = find_yaz_client()
@@ -187,8 +187,11 @@ if completed:
                    "Search NLI again; completed searches will not be repeated.")
     st.info(f"Search finished in {format_duration(completed['elapsed'])}.")
     counts = completed["counts"]
+    total = sum(counts.values())
     for column, (label, key) in zip(st.columns(3), [("Yes", YES), ("No", NO), ("Manual Review", REVIEW)]):
         column.metric(label, counts.get(key, 0))
+        if total:
+            column.caption(f"{counts.get(key, 0) / total:.0%}")
     st.dataframe(completed["preview"], hide_index=True)
     st.download_button("Download Excel file", data=completed["output"],
                        file_name=f"NLI_Checked_{Path(uploaded.name).stem}.xlsx",
