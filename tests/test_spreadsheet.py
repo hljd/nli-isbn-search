@@ -1,7 +1,8 @@
-"""Spreadsheet round trip: input preserved, exactly two new columns, Notes."""
+"""Spreadsheet round trip: input preserved, exactly two new columns, NLI Notes."""
 import io
 
 from openpyxl import Workbook, load_workbook
+from openpyxl.cell.cell import MergedCell
 
 from nli_client import NO, REVIEW, YES, NliRecord, SearchResult
 from spreadsheet_processor import (
@@ -73,7 +74,7 @@ def test_round_trip_preserves_data_and_adds_two_columns():
 
     assert stopped is None
     assert ws.max_column == 3 + 2
-    assert [ws.cell(2, c).value for c in range(1, 6)] == ["NLI Match", "Notes", "Title", "ISBN", "Price"]
+    assert [ws.cell(2, c).value for c in range(1, 6)] == ["NLI Match", "NLI Notes", "Title", "ISBN", "Price"]
     # Original cells (including preamble and row order) are unchanged, shifted by 2.
     for r, row in enumerate(expected_values, 1):
         assert [ws.cell(r, c + 2).value for c in range(1, 4)] == row
@@ -81,6 +82,10 @@ def test_round_trip_preserves_data_and_adds_two_columns():
     assert "C1:E1" in {str(m) for m in ws.merged_cells.ranges}
     assert ws.column_dimensions["C"].width == 33
     assert out["Other"]["A1"].value == "untouched"
+    # Every cell, original and new, header and data, is top-aligned (merged
+    # ranges take their alignment from the top-left cell).
+    assert all(c.alignment.vertical == "top" for row in ws.iter_rows() for c in row
+               if not isinstance(c, MergedCell))
 
     statuses = [ws.cell(r, 1).value for r in range(3, 3 + len(ROWS))]
     assert statuses == [expected for _, _, expected in ROWS]

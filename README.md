@@ -5,7 +5,7 @@ Checks whether the books on your list are held by the **National Library of Isra
 | Column | What it shows |
 |---|---|
 | **NLI Match** | **Yes**, **No**, or **Manual Review** |
-| **Notes** | **Yes:** the book's title in NLI (click it to open the NLI record). **No:** left blank. **Manual Review:** the reason to check by hand. |
+| **NLI Notes** | **Yes:** the book's title in NLI (click it to open the NLI record). **No:** left blank. **Manual Review:** the reason to check by hand. |
 
 Rows are colored **green** (Yes), **red** (No), or **yellow** (Manual Review). The rest of your spreadsheet is unchanged.
 
@@ -43,7 +43,7 @@ If the search is interrupted, click **Search NLI** again. Books already checked 
 
 - **Yes:** NLI has a catalog record with this ISBN, and the record shows that NLI holds a copy.
 - **No:** NLI's catalog has no record with this ISBN.
-- **Manual Review:** the app could not decide. Check the Notes. Common reasons:
+- **Manual Review:** the app could not decide. Check the NLI Notes. Common reasons:
   - the ISBN is missing or invalid
   - the connection to NLI failed (a failed search is never reported as "No")
   - NLI has a record but shows no copy on the shelf (often an e-book)

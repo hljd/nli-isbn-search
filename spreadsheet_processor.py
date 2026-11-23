@@ -20,7 +20,7 @@ from openpyxl.worksheet.cell_range import MultiCellRange
 from isbn_utils import isbn13, split_isbns
 from nli_client import NO, REVIEW, YES, SearchResult
 
-OUTPUT_HEADERS = ("NLI Match", "Notes")
+OUTPUT_HEADERS = ("NLI Match", "NLI Notes")
 FILLS = {
     YES: PatternFill("solid", fgColor="DDF1D8"),     # green
     NO: PatternFill("solid", fgColor="F7D9D9"),      # red
@@ -29,7 +29,7 @@ FILLS = {
 THIN = Side(style="thin", color="FF000000")
 ALL_BORDERS = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
 TEXT_EXTENSIONS = {".csv", ".tsv", ".txt"}
-MAX_LISTED_RECORDS = 3     # records named in one Notes cell
+MAX_LISTED_RECORDS = 3     # records named in one NLI Notes cell
 MAX_TITLE_LENGTH = 150
 MAX_CONSECUTIVE_FAILURES = 5  # then stop: the catalog is probably unreachable
 NO_MATCH_NOTE = "No matching ISBN found in NLI catalog"
@@ -234,10 +234,10 @@ def _records_text(records):
 
 
 def combine_row(plan, results):
-    """Turn one row's ISBN search results into its NLI Match and Notes.
+    """Turn one row's ISBN search results into its NLI Match and NLI Notes.
 
-    * Yes if any ISBN in the cell is a verified NLI match (Notes: title only).
-    * No (Notes blank) only if the cell holds no invalid text and EVERY search completed
+    * Yes if any ISBN in the cell is a verified NLI match (NLI Notes: title only).
+    * No (NLI Notes blank) only if the cell holds no invalid text and EVERY search completed
       with zero hits.
     * Otherwise Manual Review, with the reasons.
     The hyperlink points to the first NLI record listed.
@@ -256,7 +256,7 @@ def combine_row(plan, results):
         return RowResult(YES, "\n".join(titles[:MAX_LISTED_RECORDS]), result.records[0].url)
 
     if not plan.invalid and all(r.status == NO for _, r in by_isbn):
-        return RowResult(NO, "")  # No: Notes left blank
+        return RowResult(NO, "")  # No: NLI Notes left blank
 
     lines, url = [], None
     for isbn, result in by_isbn:
@@ -309,7 +309,7 @@ def set_hyperlink(cell, url):
 
 
 def render_workbook(workbook, sheet_name, row_results, header_row=1):
-    """Add NLI Match and Notes as columns A and B; return (xlsx bytes, counts)."""
+    """Add NLI Match and NLI Notes as columns A and B; return (xlsx bytes, counts)."""
     sheet = workbook[sheet_name]
     original_max_col = sheet.max_column
     count = len(OUTPUT_HEADERS)
@@ -321,7 +321,7 @@ def render_workbook(workbook, sheet_name, row_results, header_row=1):
         cell._style = copy(header_style)
     sheet.column_dimensions["A"].width = 15
     # Excel widths are in characters (~7 px each at the default font): 42 is
-    # about 300 px. Notes wrap, so longer titles/reasons take 2-3 lines.
+    # about 300 px. NLI Notes wrap, so longer titles/reasons take 2-3 lines.
     sheet.column_dimensions["B"].width = 42
     counts = Counter()
     for row, result in row_results.items():
@@ -341,6 +341,11 @@ def render_workbook(workbook, sheet_name, row_results, header_row=1):
             cell.border = copy(ALL_BORDERS)
     for col in range(1, last_col + 1):
         sheet.cell(header_row, col).border = copy(ALL_BORDERS)
+    for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, max_col=last_col):
+        for cell in row:
+            alignment = copy(cell.alignment)
+            alignment.vertical = "top"
+            cell.alignment = alignment
     buffer = io.BytesIO()
     workbook.save(buffer)
     return buffer.getvalue(), counts

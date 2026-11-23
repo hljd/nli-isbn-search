@@ -172,7 +172,7 @@ if st.button("Search NLI", type="primary", disabled=not rows):
         st.error("The searches finished, but the Excel file could not be created.")
         st.stop()
     preview = [{"Excel row": row, "ISBN (original)": "" if plans[row].raw is None else str(plans[row].raw),
-                "NLI Match": result.status, "Notes": result.notes}
+                "NLI Match": result.status, "NLI Notes": result.notes}
                for row, result in row_results.items()]
     st.session_state["result_signature"] = signature
     st.session_state["completed"] = dict(output=output, counts=counts, preview=preview,
