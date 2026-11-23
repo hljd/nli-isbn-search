@@ -320,9 +320,8 @@ def render_workbook(workbook, sheet_name, row_results, header_row=1):
         cell = sheet.cell(header_row, col, title)
         cell._style = copy(header_style)
     sheet.column_dimensions["A"].width = 15
-    # Excel widths are in characters (~7 px each at the default font and 100%
-    # display scaling; ~11 px at 150%). NLI Notes wrap, so longer titles and
-    # reasons take several lines.
+    # Excel widths are in characters (~7 px each at the default font).
+    # NLI Notes wrap, so longer titles and reasons take several lines.
     sheet.column_dimensions["B"].width = 30
     counts = Counter()
     for row, result in row_results.items():
