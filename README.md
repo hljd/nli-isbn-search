@@ -1,4 +1,4 @@
-# NLI ISBN Search
+# National Library of Israel ISBN Search
 
 Checks whether the books on your list are held by the **National Library of Israel (NLI)**. Upload a spreadsheet, and the app looks up each ISBN in the NLI catalog. You then download a copy of your spreadsheet with two new columns at the front:
 
@@ -9,26 +9,11 @@ Checks whether the books on your list are held by the **National Library of Isra
 
 Rows are colored **green** (Yes), **red** (No), or **yellow** (Manual Review). The rest of your spreadsheet is unchanged.
 
-## One-time setup
+## Opening the app
 
-You need this once per computer. It is already done on the Judaica Mac.
+Go to **[nlisearch.streamlit.app](https://nlisearch.streamlit.app)** in any web browser. 
 
-1. Install YAZ, the tool that talks to the NLI catalog: `sudo port install yaz` (MacPorts) or `brew install yaz` (Homebrew).
-2. In Terminal:
-   ```bash
-   cd ~/harvard-library-judaica-division/nli-isbn-search
-   python3 -m venv .venv
-   .venv/bin/pip install -r requirements.txt
-   ```
-
-## Starting the app
-
-```bash
-cd ~/harvard-library-judaica-division/nli-isbn-search
-.venv/bin/streamlit run app.py
-```
-
-The app opens in your browser. To stop it, press `Ctrl+C` in Terminal.
+If the page says the app has gone to sleep, click the button to wake it up and wait a minute for it to start.
 
 ## Using the app
 
@@ -60,9 +45,8 @@ Good to know:
 
 | Problem | What to do |
 |---|---|
-| "missing a required tool … yaz-client" | Do step 1 of the one-time setup. |
-| Many rows say "Connection timeout" or "Could not connect" | Check your internet connection. Guest Wi-Fi and some VPNs block NLI's catalog connection. Then click **Search NLI** again. |
-| An error mentioning `anaconda3` | Start the app with `.venv/bin/streamlit run app.py`, exactly as shown above. |
+| The app is asleep or will not load | Click the button to wake it up and wait a minute. If it still does not load, reload the page. |
+| Many rows say "Connection timeout" or "Could not connect" | The NLI catalog may be busy or down. Wait a few minutes, then click **Search NLI** again. |
 | Garbled text in the preview (CSV files) | Open **CSV options** and try another encoding. For Hebrew, try Windows-1255. |
 
 ---
@@ -73,7 +57,21 @@ Good to know:
 - **NLI connection:** Z39.50 at `nli.alma.exlibrisgroup.com:1921/972NNL_INST`, with the public login `z39`/`z39`, driven through `yaz-client`. No API key is needed. If YAZ is not on your `PATH`, set `NLI_YAZ_CLIENT=/path/to/yaz-client`.
 - **Rule for "Yes":** a returned record lists the ISBN in MARC 020 $a and has an 852 $b holdings field.
 - **Tests:** `.venv/bin/pip install -r requirements-dev.txt`, then `.venv/bin/python -m pytest` (offline). Add `NLI_LIVE_TESTS=1` to also query NLI.
-- **Hosting:** the app is tested on a Mac only. On Streamlit Community Cloud, YAZ installs via `packages.txt`, but it is **unverified** whether outbound port 1921 is allowed. A Harvard server or VM that allows port 1921 is the fallback.
+- **Hosting:** Streamlit Community Cloud, with YAZ installed via `packages.txt`.
+  - **Official:** [nlisearch.streamlit.app](https://nlisearch.streamlit.app), deployed from [hljd/nli-isbn-search](https://github.com/hljd/nli-isbn-search). This is the link to give library staff.
+  - **Testing:** [nlisearchtest.streamlit.app](https://nlisearchtest.streamlit.app). Try changes here before they reach the official app.
+- **Running locally** (for development; needs YAZ: `brew install yaz` or `sudo port install yaz`):
+  ```bash
+  git clone https://github.com/hljd/nli-isbn-search.git
+  cd nli-isbn-search
+  python3 -m venv .venv
+  .venv/bin/pip install -r requirements.txt
+  .venv/bin/streamlit run app.py
+  ```
+  Use `.venv/bin/streamlit` as shown; a different Python (such as Anaconda) may not have the required packages.
 - **Known limits:**
   - Formulas in an uploaded sheet are not adjusted for the two inserted columns.
   - More than 20 NLI records for one ISBN goes to Manual Review.
+- **References:**
+  - [NLI catalog search](https://www.nli.org.il/en/search?projectName=NLI): for checking Manual Review rows by hand.
+  - [NLI services for librarians](https://www.nli.org.il/en/at-your-service/librarians): NLI's Z39.50 connection details.
